@@ -141,6 +141,21 @@ COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir --timeout=1200 --retries=10 \
     -r /tmp/requirements.txt
 
+# requirements.txt 未锁 torch，pip 会把 torch 升级到 cu130（宿主驱动 12.8 不支持）；
+# 重装 wheels 中锁定的 torch 2.9.1+cu128 与配套 nvidia/triton 库，覆盖 PyPI 版本
+RUN pip install --no-cache-dir --no-deps \
+    /tmp/wheels/torch-*.whl \
+    /tmp/wheels/torchvision-*.whl \
+    /tmp/wheels/torchaudio-*.whl \
+    /tmp/wheels/nvidia_*.whl \
+    /tmp/wheels/triton-*.whl
+
+# diffusers 0.36.0 bug：环境中存在 torchao>=0.7 但缺少新版 dtype 布局模块时，
+# 导入期触发未定义 logger 崩溃；上游 requirements 不含 torchao，对齐之。
+# 同时构建期断言 torch 版本，防止依赖解析悄悄升级。
+RUN pip uninstall -y torchao && \
+    python -c "import diffusers.loaders.single_file_model; import torch; assert torch.__version__.startswith('2.9.1+cu128'), torch.__version__"
+
 # 清理 wheels
 RUN rm -rf /tmp/wheels
 
