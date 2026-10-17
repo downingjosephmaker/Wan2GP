@@ -134,74 +134,12 @@ RUN pip install --no-cache-dir --no-deps \
 RUN pip install --no-cache-dir --no-deps /tmp/wheels/*.whl
 
 # ============================================================
-# 步骤 3: 安装 Wan2GP 特有依赖（从 PyPI 下载）
+# 步骤 3: 按项目 requirements.txt 安装全部剩余依赖
+# （torch/nvidia 系已在步骤 1-2 由 wheels 离线装好，requirements 未列 torch，不会覆盖）
 # ============================================================
+COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir --timeout=1200 --retries=10 \
-    mmgp==3.7.6 \
-    gradio==5.29.0 \
-    moviepy==1.0.3 \
-    pygame>=2.1.0 \
-    sounddevice>=0.4.0 \
-    soundfile \
-    mutagen \
-    pyloudnorm \
-    librosa==0.11.0 \
-    speechbrain==1.0.3 \
-    openai-whisper==20250625 \
-    audio-separator==0.36.1 \
-    torchcodec==0.10.0 \
-    dashscope \
-    loguru \
-    num2words==0.5.14 \
-    ffmpeg-python \
-    gradio_rangeslider \
-    segment-anything \
-    rembg[gpu]==2.0.65 \
-    onnxruntime-gpu>=1.25.0 \
-    decord \
-    iopath>=0.1.10 \
-    insightface==0.7.3 \
-    facexlib==0.3.0 \
-    taichi \
-    vector_quantize_pytorch==1.27.19 \
-    hydra-core \
-    easydict \
-    torchdiffeq>=0.2.5 \
-    tensordict>=0.6.1 \
-    gguf==0.17.1 \
-    flash-linear-attention==0.4.1 \
-    piexif \
-    nvidia-ml-py \
-    misaki \
-    phonemizer-fork \
-    espeakng-loader \
-    gitdb==4.0.12 \
-    gitpython==3.1.45 \
-    stringzilla==4.0.14 \
-    xxhash \
-    munch \
-    wetext==0.1.2 \
-    markdown \
-    av \
-    diffusers \
-    smplfitter \
-    ftfy \
-    pycocotools
-
-# s3tokenizer + conformer（Wan2GP 特有）
-RUN pip install --no-cache-dir --timeout=1200 \
-    s3tokenizer \
-    conformer==0.3.2 \
-    spacy_pkuseg \
-    spacy
-
-# pyannote.audio（需要特殊处理，可能需要 huggingface token）
-RUN pip install --no-cache-dir --timeout=1200 \
-    pyannote.audio==3.3.2 || echo "⚠️ pyannote.audio 安装失败（可能需要 huggingface token），跳过"
-
-# sherpa-onnx
-RUN pip install --no-cache-dir --timeout=1200 \
-    sherpa-onnx==1.13.2 || echo "⚠️ sherpa-onnx 安装失败，跳过"
+    -r /tmp/requirements.txt
 
 # 清理 wheels
 RUN rm -rf /tmp/wheels
