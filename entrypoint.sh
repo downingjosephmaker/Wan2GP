@@ -115,4 +115,4 @@ echo "════════════════════════�
 echo "🚀 Starting application..."
 echo ""
 
-exec su -p user -c "python3 wgp.py --listen $*"
+exec su -p user -c "cd /workspace/project && python3 wgp.py --listen $*"

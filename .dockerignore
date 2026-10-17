@@ -1,0 +1,32 @@
+# 大型目录（通过 volume 挂载，不需要进入镜像）
+ckpts
+outputs
+
+# Python 缓存
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+.venv
+
+# Git
+.git
+.gitignore
+
+# IDE / OS
+.claude
+.idea
+.vscode
+.DS_Store
+Thumbs.db
+
+# Docker 文件本身
+docker-compose.yml
+.dockerignore
+
+# wheels 需要进入镜像 - 不要排除 wheels/ 目录
+
+# 下载脚本（不需要进入镜像）
+download_models.sh
+download_wheels.sh
+download_log.txt

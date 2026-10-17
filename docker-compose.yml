@@ -1,0 +1,44 @@
+services:
+  wan2gp:
+    build:
+      context: /mnt/d/MyWork/Project/My/Wan2GP
+      dockerfile: /mnt/d/MyWork/Project/My/Wan2GP/Dockerfile
+      args:
+        CUDA_ARCHITECTURES: "12.0"
+    image: wan2gp:latest
+    container_name: wan2gp
+    ports:
+      - "7860:7860"
+    volumes:
+      # 项目源码（包含 wgp.py 等）
+      - /mnt/d/MyWork/Project/My/Wan2GP:/workspace/project
+      # 模型权重（只读）
+      - /mnt/d/MyWork/Project/My/Wan2GP/ckpts:/workspace/ckpts:ro
+      # 输出目录
+      - /mnt/d/MyWork/Project/My/Wan2GP/outputs:/workspace/outputs
+      # HuggingFace 缓存（避免重复下载辅助文件）
+      - wan2gp-hf-cache:/home/user/.cache/huggingface
+    environment:
+      - TZ=Asia/Shanghai
+      - NVIDIA_VISIBLE_DEVICES=all
+      - CUDA_VISIBLE_DEVICES=0
+      - HF_HOME=/home/user/.cache/huggingface
+      - HF_ENDPOINT=https://hf-mirror.com
+      - OMP_NUM_THREADS=8
+      - MKL_NUM_THREADS=8
+      - TORCH_ALLOW_TF32_CUBLAS=1
+      - TORCH_ALLOW_TF32_CUDNN=1
+      - SDL_AUDIODRIVER=dummy
+      - PULSE_RUNTIME_PATH=/tmp/pulse-runtime
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    shm_size: "8g"
+    restart: unless-stopped
+
+volumes:
+  wan2gp-hf-cache:
